@@ -17,6 +17,10 @@ preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/sakuraba07/rust-computational-physics-tutorial"
 git-repository-icon = "fa-github"
 edit-url-template = "https://github.com/sakuraba07/rust-computational-physics-tutorial/edit/main/src/{path}"
+theme = "theme"
+
+[output.html.search]
+enable = false
 
 [output.typst]
 

@@ -1,0 +1,229 @@
+<!-- Pagefind CSS -->
+<link href="{{ path_to_root }}pagefind/pagefind-ui.css" rel="stylesheet">
+
+<style>
+    /* Pagefind search container in menu bar */
+    #pagefind-search-container {
+        display: inline-block;
+        margin-right: 10px;
+        vertical-align: middle;
+        position: relative;
+    }
+    
+    #pagefind-search {
+        width: 250px;
+    }
+    
+    /* Override Pagefind UI styles for dropdown behavior */
+    #pagefind-search .pagefind-ui {
+        position: relative;
+    }
+    
+    #pagefind-search .pagefind-ui__form {
+        position: relative;
+        z-index: 1001;
+    }
+    
+    #pagefind-search .pagefind-ui__results-area {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-width: 600px;
+        max-height: 70vh;
+        overflow-y: auto;
+        background-color: var(--bg);
+        border: 1px solid var(--searchbar-border-color);
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        margin-top: 5px;
+    }
+    
+    /* Hide results area when empty */
+    #pagefind-search .pagefind-ui__results-area:empty {
+        display: none;
+        border: none;
+        box-shadow: none;
+    }
+    
+    @media (max-width: 768px) {
+        #pagefind-search {
+            width: 180px;
+        }
+        
+        #pagefind-search .pagefind-ui__results-area {
+            max-width: 90vw;
+            left: auto;
+            right: 0;
+        }
+    }
+    
+    /* Style adjustments for Pagefind UI */
+    .pagefind-ui__search-input {
+        background-color: var(--searchbar-bg);
+        color: var(--searchbar-fg);
+        border: 1px solid var(--searchbar-border-color);
+        border-radius: 3px;
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+    
+    .pagefind-ui__search-input:focus {
+        outline: none;
+        border-color: var(--links);
+    }
+    
+    .pagefind-ui__results {
+        background-color: var(--bg);
+        color: var(--fg);
+        padding: 10px;
+    }
+    
+    .pagefind-ui__result {
+        border-bottom: 1px solid var(--searchbar-border-color);
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .pagefind-ui__result:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .pagefind-ui__result-link {
+        color: var(--links);
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .pagefind-ui__result-link:hover {
+        text-decoration: underline;
+    }
+    
+    .pagefind-ui__result-excerpt {
+        color: var(--fg);
+        margin-top: 5px;
+        font-size: 0.9em;
+        line-height: 1.4;
+    }
+    
+    /* Message styles */
+    .pagefind-ui__message {
+        padding: 10px;
+        color: var(--fg);
+        text-align: center;
+    }
+    
+    /* Button styles */
+    .pagefind-ui__button {
+        background-color: var(--searchbar-bg);
+        color: var(--searchbar-fg);
+        border: 1px solid var(--searchbar-border-color);
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    
+    .pagefind-ui__button:hover {
+        background-color: var(--searchbar-border-color);
+    }
+</style>
+
+<script>
+    // Pagefindの初期化を遅延実行
+    function initializePagefind() {
+        // Find the menu bar
+        const menuBar = document.querySelector('#menu-bar');
+        if (!menuBar) {
+            console.warn('Menu bar not found');
+            return;
+        }
+        
+        // Create search container
+        const searchContainer = document.createElement('div');
+        searchContainer.id = 'pagefind-search-container';
+        searchContainer.innerHTML = '<div id="pagefind-search"></div>';
+        
+        // Insert before the right buttons
+        const rightButtons = menuBar.querySelector('.right-buttons');
+        if (rightButtons) {
+            menuBar.insertBefore(searchContainer, rightButtons);
+        } else {
+            menuBar.appendChild(searchContainer);
+        }
+        
+        // Load Pagefind UI script
+        const script = document.createElement('script');
+        script.src = '{{ path_to_root }}pagefind/pagefind-ui.js';
+        script.onload = function() {
+            // Initialize Pagefind UI after script loads
+            if (typeof PagefindUI !== 'undefined') {
+                new PagefindUI({ 
+                    element: "#pagefind-search",
+                    showSubResults: true,
+                    resetStyles: false,
+                    translations: {
+                        placeholder: "検索...",
+                        clear_search: "クリア",
+                        load_more: "さらに読み込む",
+                        search_label: "このサイトを検索",
+                        filters_label: "フィルター",
+                        zero_results: "[SEARCH_TERM] に一致する結果が見つかりませんでした",
+                        many_results: "[COUNT] 件の結果",
+                        one_result: "1 件の結果",
+                        alt_search: "[SEARCH_TERM] に一致する結果が見つかりませんでした。代わりに [DIFFERENT_TERM] の結果を表示しています",
+                        search_suggestion: "[TERM] を検索してみてください",
+                        searching: "検索中..."
+                    }
+                });
+                
+                // Close search results when clicking outside
+                document.addEventListener('click', function(event) {
+                    const searchContainer = document.getElementById('pagefind-search-container');
+                    if (searchContainer && !searchContainer.contains(event.target)) {
+                        const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                        if (resultsArea) {
+                            resultsArea.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Show results area when input is focused and has content
+                const searchInput = document.querySelector('.pagefind-ui__search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('focus', function() {
+                        const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                        if (resultsArea && searchInput.value.trim() !== '') {
+                            resultsArea.style.display = 'block';
+                        }
+                    });
+                    
+                    searchInput.addEventListener('input', function() {
+                        const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                        if (resultsArea) {
+                            if (searchInput.value.trim() !== '') {
+                                resultsArea.style.display = 'block';
+                            } else {
+                                resultsArea.style.display = 'none';
+                            }
+                        }
+                    });
+                }
+            } else {
+                console.error('PagefindUI failed to load');
+            }
+        };
+        script.onerror = function() {
+            console.error('Failed to load Pagefind UI script');
+        };
+        document.head.appendChild(script);
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePagefind);
+    } else {
+        initializePagefind();
+    }
+</script>

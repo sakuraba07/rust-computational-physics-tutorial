@@ -1,0 +1,27 @@
+[tasks.build]
+description = "Build mdbook"
+run = "mdbook build"
+
+[tasks.pagefind]
+description = "Generate pagefind search index (uses npx for better Japanese support)"
+run = "npx -y pagefind --site book/html --output-subdir pagefind"
+depends = ["build"]
+
+[tasks.build-all]
+description = "Build mdbook and generate search index"
+run = [
+  "mdbook build",
+  "npx -y pagefind --site book/html --output-subdir pagefind"
+]
+
+[tasks.serve-static]
+description = "Serve the book with a static server (after building)"
+run = "cd book/html && python3 -m http.server 3000"
+
+[tasks.watch]
+description = "Watch for changes and rebuild (run serve-static in another terminal)"
+run = "mdbook watch"
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = "rm -rf book"
