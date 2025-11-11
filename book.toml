@@ -19,3 +19,5 @@ git-repository-icon = "fa-github"
 edit-url-template = "https://github.com/sakuraba07/rust-computational-physics-tutorial/edit/main/src/{path}"
 
 [output.typst]
+
+[output.linkcheck]
