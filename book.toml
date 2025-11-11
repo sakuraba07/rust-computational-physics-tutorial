@@ -14,5 +14,8 @@ assets_version = "3.1.0"  # do not edit: managed by `mdbook-admonish install`
 additional-css = ["./mdbook-admonish.css"]
 default-theme = "light"
 preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/sakuraba07/rust-computational-physics-tutorial"
+git-repository-icon = "fa-github"
+edit-url-template = "https://github.com/sakuraba07/rust-computational-physics-tutorial/edit/main/src/{path}"
 
 [output.typst]
