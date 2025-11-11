@@ -1,0 +1,266 @@
+#set document(title: "rust計算物理学チュートリアル")
+#set document(author: ("sakuraba07"))
+#set page(paper: "us-letter")
+#set text(size: 11pt)
+#set text(font: "Helvetica")
+#show par: set block(spacing:2em)
+#set par(leading: .8em)
+
+        #show heading: it => [
+            #block(above: 2em, below: 2em, it)
+        ]
+#show link: underline
+#show link: set text(blue)
+#show outline.entry.where(level: 1):it => {
+                                    v(11pt, weak: true)
+                                   strong(it) 
+                                }
+#outline(depth: 2, indent: 2em)
+#pagebreak()
+= はじめに
+#par()[本書は、Rustプログラミング言語を用いた計算物理学の実践的なチュートリアルです。数値計算の基礎から、実際の物理シミュレーションまでを体系的に学ぶことで、Rustによる科学計算の世界への入門を目指します。]
+=== 本書の目的
+#par()[計算物理学は、現代の物理学研究において不可欠な手法となっています。解析的に解くことが困難な問題に対して、数値計算を用いることで具体的な結果を得ることができます。一方、Rustは安全性とパフォーマンスを両立した新しいシステムプログラミング言語として注目されています。]
+#par()[本書は、これら2つの分野を結びつけ、Rustを使って計算物理学の基本的な手法を実装し、理解を深めることを目的としています。本書を読み終えた時には、読者の皆さんが自分自身で物理シミュレーションを設計・実装し、結果を分析できるようになることを目指しています。]
+=== 想定読者
+#par()[本書は以下のような読者を想定しています：]
+- #par()[#strong[Rustの基本文法を理解している方]：変数、関数、構造体、トレイト、所有権などの基本的な概念に触れたことがある方を対象としています。高度なRustの知識は必要ありませんが、基本的なプログラムが書ける程度の理解があることを前提とします。]
+
+- #par()[#strong[学部レベルの物理学を学んだ方]：力学、電磁気学、熱力学・統計力学、量子力学などの基礎的な物理学の知識があることを前提とします。ただし、各トピックについては必要に応じて簡単な復習も含めています。]
+
+#par()[プログラミングや物理学の専門家である必要はありません。むしろ、これらの分野を学びながら実践的なスキルを身につけたいと考えている学生や研究者の方々に最適な内容となっています。]
+=== 本書の特徴
+#par()[本書には以下のような特徴があります：]
+==== 実践重視のアプローチ
+#par()[理論的な説明も大切にしながら、実際に動くコードを書き、結果を確認することを重視しています。各トピックでは具体的な実装例を示し、読者が自分の手で試せるようになっています。]
+==== 体系的・網羅的な内容
+#par()[数値計算の基礎から始まり、常微分方程式、偏微分方程式、モンテカルロ法、並列計算、可視化まで、計算物理学の主要なトピックを幅広くカバーしています。初心者が一歩ずつ学べるよう、難易度が極端に高い内容は避け、実用的で理解しやすいテーマを選んでいます。]
+==== Rustの強みと弱みの両面を理解する
+#par()[Rustには計算物理学において優れた点が多くありますが、同時に課題もあります。本書では、Rustを使うメリット（安全性、パフォーマンス、並列処理のしやすさなど）だけでなく、エコシステムの成熟度や学習曲線などの現実的な側面についても触れています。]
+==== 初心者に優しい構成
+#par()[各章は独立性を保ちつつも、全体として段階的に学習できるように構成されています。エラーメッセージの読み方やデバッグの方法など、実践的なヒントも随所に盛り込んでいます。]
+=== 本書で扱う内容
+#par()[本書は大きく4つのパートに分かれています：]
+#par()[#strong[基礎編]では、Rustと計算物理学の関係、開発環境のセットアップ、そして数値計算の基礎（浮動小数点演算、配列操作、主要なクレートの使い方など）を学びます。]
+#par()[#strong[数値計算手法]では、科学計算の核となる技術を扱います。数値微分・積分、線形代数、常微分方程式、偏微分方程式などの数値解法を実装し、その特性を理解します。]
+#par()[#strong[物理シミュレーション]では、実際の物理現象をシミュレートします。古典力学、モンテカルロ法、統計力学（イジング模型など）、量子力学、流体力学など、多様な物理分野の計算手法を学びます。]
+#par()[#strong[高度なトピック]では、実用的なシミュレーションに必要な技術を扱います。並列計算による高速化、可視化技術、高速フーリエ変換（FFT）などを通じて、より実践的なスキルを身につけます。]
+=== 本書の使い方
+#par()[本書は基本的に順番に読み進めることを推奨しますが、特定のトピックに興味がある場合は、そこから始めることも可能です。ただし、基礎編の内容は後の章で前提とされることが多いため、一度は目を通すことをお勧めします。]
+#par()[各章では以下のような流れで学習を進めます：]
++ #strong[概念の理解]：そのトピックの物理的・数学的背景を簡潔に説明します
++ #strong[実装]：Rustでの具体的な実装方法を示します
++ #strong[実行と可視化]：コードを実行し、結果を確認します
++ #strong[考察]：結果の解釈や、手法の特性について議論します
+#par()[コードは実際に手元で動かしてみることを強く推奨します。エラーに遭遇したり、期待した結果が得られなかったりすることも学習の重要な一部です。試行錯誤を通じて、より深い理解が得られるでしょう。]
+=== なぜRustで計算物理学なのか
+#par()[従来、計算物理学ではFortran、C/C++、Python、Julia、MATLABなどが広く使われてきました。これらの言語にはそれぞれ長所があり、特にPythonは科学計算のエコシステムが非常に充実しています。]
+#par()[それでは、なぜRustを選ぶのでしょうか？Rustには以下のような利点があります：]
+- #strong[安全性とパフォーマンスの両立]：メモリ安全性を保ちながら、C/C++に匹敵する実行速度を実現できます
+- #strong[優れた並列処理サポート]：所有権システムにより、データ競合のない並列プログラムを書きやすくなっています
+- #strong[モダンな開発環境]：Cargoによるパッケージ管理、統一されたツールチェーン、充実したドキュメントなど、開発体験が優れています
+- #strong[将来性]：科学計算の分野でもRustのエコシステムは急速に成長しています
+#par()[もちろん、Rustにも課題はあります。学習曲線がやや急であること、科学計算ライブラリの成熟度がPythonほどではないこと、既存のコードベースとの統合が必要な場合があることなどです。本書ではこうした現実的な側面にも触れながら、Rustの可能性を探っていきます。]
+=== 本書について
+#par()[本書は卒業研究の成果としてまとめられたものです。計算物理学を学ぶ学生として、また、Rustの可能性を信じる一人のプログラマーとして、この2つの分野を結びつける資料を作りたいと考えました。]
+#par()[本書が、これから計算物理学を学ぼうとする方々、Rustでの科学計算に興味を持つ方々にとって有用なリソースとなれば幸いです。]
+=== フィードバックと貢献
+#par()[本書の内容には万全を期していますが、誤字脱字や理論的な誤り、コードの不具合などが含まれている可能性があります。もし何か問題を見つけられた場合や、改善の提案がある場合は、#link("https://github.com/sakuraba07/rust-computational-physics-tutorial")[GitHubのリポジトリ]でIssueを作成していただくか、Pull Requestをお送りください。皆様からのフィードバックは、本書の品質向上に大きく貢献します。]
+#par()[また、「この説明がわかりにくい」「こんなトピックも扱ってほしい」といったご意見も歓迎します。読者の皆様と一緒に、より良い教材を作っていければと考えています。]
+=== ライセンス
+#par()[本書は#link("https://creativecommons.org/publicdomain/zero/1.0/deed.ja")[CC0 1.0（パブリックドメイン）]として公開されています。著作権法上認められる限り、著作権および関連する権利を放棄しています。本書の内容は、教育、研究、商用を問わず、自由に利用、改変、再配布していただけます。]
+#par()[それでは、Rustによる計算物理学の世界へようこそ！]
+#pagebreak(weak: true)
+
+                        #set page(
+                            header: none,
+                        )
+                        #heading(level: 1, outlined: true, "第1部: 基礎編")
+                        #pagebreak()
+                        #set page(
+                            header:  text(size: 8pt, fill: gray)[#align(right)[第1部: 基礎編]],
+                        )
+                        
+== Rustと計算物理学
+=== なぜRustなのか
+#pagebreak(weak: true)
+== 開発環境のセットアップ
+#pagebreak(weak: true)
+== 本書の使い方
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 数値計算の基礎
+=== 浮動小数点演算と誤差
+#pagebreak(weak: true)
+== 配列とベクトル演算
+#pagebreak(weak: true)
+== 外部クレートの活用（ndarray入門）
+#pagebreak(weak: true)
+== 高精度演算（xprec-rs）
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+
+                        #set page(
+                            header: none,
+                        )
+                        #heading(level: 1, outlined: true, "第2部: 数値計算手法")
+                        #pagebreak()
+                        #set page(
+                            header:  text(size: 8pt, fill: gray)[#align(right)[第2部: 数値計算手法]],
+                        )
+                        
+== 数値微分と数値積分
+=== 数値微分
+#pagebreak(weak: true)
+== 数値積分（台形則・シンプソン則）
+#pagebreak(weak: true)
+== モンテカルロ積分
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 線形代数
+=== 行列演算の基礎
+#pagebreak(weak: true)
+== 連立一次方程式（ガウスの消去法）
+#pagebreak(weak: true)
+== 固有値問題
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 常微分方程式
+=== オイラー法
+#pagebreak(weak: true)
+== ルンゲ=クッタ法
+#pagebreak(weak: true)
+== 応用例：単振動と減衰振動
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 偏微分方程式
+=== 差分法の基礎
+#pagebreak(weak: true)
+== 拡散方程式
+#pagebreak(weak: true)
+== 波動方程式
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+
+                        #set page(
+                            header: none,
+                        )
+                        #heading(level: 1, outlined: true, "第3部: 物理シミュレーション")
+                        #pagebreak()
+                        #set page(
+                            header:  text(size: 8pt, fill: gray)[#align(right)[第3部: 物理シミュレーション]],
+                        )
+                        
+== 古典力学シミュレーション
+=== 質点系の運動
+#pagebreak(weak: true)
+== 惑星運動（ケプラー問題）
+#pagebreak(weak: true)
+== 剛体の運動
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= モンテカルロ法
+=== 乱数生成とランダムウォーク
+#pagebreak(weak: true)
+== モンテカルロ積分の詳細
+#pagebreak(weak: true)
+== 重点サンプリング
+#pagebreak(weak: true)
+== マルコフ連鎖モンテカルロ法
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 統計力学シミュレーション
+=== イジング模型の基礎
+#pagebreak(weak: true)
+== メトロポリス法
+#pagebreak(weak: true)
+== 相転移とクリティカル現象
+#pagebreak(weak: true)
+== その他の格子模型
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 量子力学
+=== シュレーディンガー方程式の数値解法
+#pagebreak(weak: true)
+== 調和振動子
+#pagebreak(weak: true)
+== ポテンシャル井戸問題
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 流体力学
+=== 格子ボルツマン法入門
+#pagebreak(weak: true)
+== ナビエ-ストークス方程式
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+
+                        #set page(
+                            header: none,
+                        )
+                        #heading(level: 1, outlined: true, "第4部: 高度なトピック")
+                        #pagebreak()
+                        #set page(
+                            header:  text(size: 8pt, fill: gray)[#align(right)[第4部: 高度なトピック]],
+                        )
+                        
+== 並列計算
+=== RayonによるCPU並列化
+#pagebreak(weak: true)
+== SIMD最適化
+#pagebreak(weak: true)
+== パフォーマンス測定とプロファイリング
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= 可視化
+=== plottersによる2Dプロット
+#pagebreak(weak: true)
+== データの保存と読み込み
+#pagebreak(weak: true)
+== アニメーション作成
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+= FFT（高速フーリエ変換）
+=== 離散フーリエ変換の基礎
+#pagebreak(weak: true)
+== FFTの実装と応用
+#pagebreak(weak: true)
+== スペクトル解析
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+#pagebreak(weak: true)
+
+                        #set page(
+                            header: none,
+                        )
+                        #heading(level: 1, outlined: true, "付録")
+                        #pagebreak()
+                        #set page(
+                            header:  text(size: 8pt, fill: gray)[#align(right)[付録]],
+                        )
+                        
+== 付録A: 参考資料
+#pagebreak(weak: true)
+== 付録B: 有用なクレート集
+#pagebreak(weak: true)
+== 付録C: デバッグとトラブルシューティング
+#pagebreak(weak: true)
+== 付録D: 数学的背景
+#pagebreak(weak: true)
+#pagebreak(weak: true)

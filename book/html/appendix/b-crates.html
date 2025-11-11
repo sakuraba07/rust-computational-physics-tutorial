@@ -1,0 +1,443 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>付録B: 有用なクレート集 - rust計算物理学チュートリアル</title>
+
+
+        <!-- Custom HTML head -->
+        <!-- Pagefind CSS -->
+        <link href="../pagefind/pagefind-ui.css" rel="stylesheet">
+        
+        <style>
+            /* Pagefind search container in menu bar */
+            #pagefind-search-container {
+                display: inline-block;
+                margin-right: 10px;
+                vertical-align: middle;
+                position: relative;
+            }
+            
+            #pagefind-search {
+                width: 250px;
+            }
+            
+            /* Override Pagefind UI styles for dropdown behavior */
+            #pagefind-search .pagefind-ui {
+                position: relative;
+            }
+            
+            #pagefind-search .pagefind-ui__form {
+                position: relative;
+                z-index: 1001;
+            }
+            
+            #pagefind-search .pagefind-ui__results-area {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                max-width: 600px;
+                max-height: 70vh;
+                overflow-y: auto;
+                background-color: var(--bg);
+                border: 1px solid var(--searchbar-border-color);
+                border-radius: 4px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                margin-top: 5px;
+            }
+            
+            /* Hide results area when empty */
+            #pagefind-search .pagefind-ui__results-area:empty {
+                display: none;
+                border: none;
+                box-shadow: none;
+            }
+            
+            @media (max-width: 768px) {
+                #pagefind-search {
+                    width: 180px;
+                }
+                
+                #pagefind-search .pagefind-ui__results-area {
+                    max-width: 90vw;
+                    left: auto;
+                    right: 0;
+                }
+            }
+            
+            /* Style adjustments for Pagefind UI */
+            .pagefind-ui__search-input {
+                background-color: var(--searchbar-bg);
+                color: var(--searchbar-fg);
+                border: 1px solid var(--searchbar-border-color);
+                border-radius: 3px;
+                padding: 5px 10px;
+                font-size: 0.9em;
+            }
+            
+            .pagefind-ui__search-input:focus {
+                outline: none;
+                border-color: var(--links);
+            }
+            
+            .pagefind-ui__results {
+                background-color: var(--bg);
+                color: var(--fg);
+                padding: 10px;
+            }
+            
+            .pagefind-ui__result {
+                border-bottom: 1px solid var(--searchbar-border-color);
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .pagefind-ui__result:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .pagefind-ui__result-link {
+                color: var(--links);
+                text-decoration: none;
+                font-weight: bold;
+            }
+            
+            .pagefind-ui__result-link:hover {
+                text-decoration: underline;
+            }
+            
+            .pagefind-ui__result-excerpt {
+                color: var(--fg);
+                margin-top: 5px;
+                font-size: 0.9em;
+                line-height: 1.4;
+            }
+            
+            /* Message styles */
+            .pagefind-ui__message {
+                padding: 10px;
+                color: var(--fg);
+                text-align: center;
+            }
+            
+            /* Button styles */
+            .pagefind-ui__button {
+                background-color: var(--searchbar-bg);
+                color: var(--searchbar-fg);
+                border: 1px solid var(--searchbar-border-color);
+                padding: 5px 10px;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            
+            .pagefind-ui__button:hover {
+                background-color: var(--searchbar-border-color);
+            }
+        </style>
+        
+        <script>
+            // Pagefindの初期化を遅延実行
+            function initializePagefind() {
+                // Find the menu bar
+                const menuBar = document.querySelector('#menu-bar');
+                if (!menuBar) {
+                    console.warn('Menu bar not found');
+                    return;
+                }
+                
+                // Create search container
+                const searchContainer = document.createElement('div');
+                searchContainer.id = 'pagefind-search-container';
+                searchContainer.innerHTML = '<div id="pagefind-search"></div>';
+                
+                // Insert before the right buttons
+                const rightButtons = menuBar.querySelector('.right-buttons');
+                if (rightButtons) {
+                    menuBar.insertBefore(searchContainer, rightButtons);
+                } else {
+                    menuBar.appendChild(searchContainer);
+                }
+                
+                // Load Pagefind UI script
+                const script = document.createElement('script');
+                script.src = '../pagefind/pagefind-ui.js';
+                script.onload = function() {
+                    // Initialize Pagefind UI after script loads
+                    if (typeof PagefindUI !== 'undefined') {
+                        new PagefindUI({ 
+                            element: "#pagefind-search",
+                            showSubResults: true,
+                            resetStyles: false,
+                            translations: {
+                                placeholder: "検索...",
+                                clear_search: "クリア",
+                                load_more: "さらに読み込む",
+                                search_label: "このサイトを検索",
+                                filters_label: "フィルター",
+                                zero_results: "[SEARCH_TERM] に一致する結果が見つかりませんでした",
+                                many_results: "[COUNT] 件の結果",
+                                one_result: "1 件の結果",
+                                alt_search: "[SEARCH_TERM] に一致する結果が見つかりませんでした。代わりに [DIFFERENT_TERM] の結果を表示しています",
+                                search_suggestion: "[TERM] を検索してみてください",
+                                searching: "検索中..."
+                            }
+                        });
+                        
+                        // Close search results when clicking outside
+                        document.addEventListener('click', function(event) {
+                            const searchContainer = document.getElementById('pagefind-search-container');
+                            if (searchContainer && !searchContainer.contains(event.target)) {
+                                const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                                if (resultsArea) {
+                                    resultsArea.style.display = 'none';
+                                }
+                            }
+                        });
+                        
+                        // Show results area when input is focused and has content
+                        const searchInput = document.querySelector('.pagefind-ui__search-input');
+                        if (searchInput) {
+                            searchInput.addEventListener('focus', function() {
+                                const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                                if (resultsArea && searchInput.value.trim() !== '') {
+                                    resultsArea.style.display = 'block';
+                                }
+                            });
+                            
+                            searchInput.addEventListener('input', function() {
+                                const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                                if (resultsArea) {
+                                    if (searchInput.value.trim() !== '') {
+                                        resultsArea.style.display = 'block';
+                                    } else {
+                                        resultsArea.style.display = 'none';
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        console.error('PagefindUI failed to load');
+                    }
+                };
+                script.onerror = function() {
+                    console.error('Failed to load Pagefind UI script');
+                };
+                document.head.appendChild(script);
+            }
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializePagefind);
+            } else {
+                initializePagefind();
+            }
+        </script>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                    </div>
+
+                    <h1 class="menu-title">rust計算物理学チュートリアル</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/sakuraba07/rust-computational-physics-tutorial" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/sakuraba07/rust-computational-physics-tutorial/edit/main/src/src/appendix/b-crates.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="付録b-有用なクレート集"><a class="header" href="#付録b-有用なクレート集">付録B: 有用なクレート集</a></h1>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../appendix/a-references.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../appendix/c-debugging.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../appendix/a-references.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../appendix/c-debugging.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

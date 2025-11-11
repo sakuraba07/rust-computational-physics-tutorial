@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light" dir="ltr">
+    <head>
+        <!-- sidebar iframe generated using mdBook
+
+        This is a frame, and not included directly in the page, to control the total size of the
+        book. The TOC contains an entry for each page, so if each page includes a copy of the TOC,
+        the total size of the page becomes O(n**2).
+
+        The frame is only used as a fallback when JS is turned off. When it's on, the sidebar is
+        instead added to the main page by `toc.js` instead. The JavaScript mode is better
+        because, when running in a `file:///` URL, the iframed page would not be Same-Origin as
+        the rest of the page, so the sidebar and the main page theme would fall out of sync.
+        -->
+        <meta charset="UTF-8">
+        <meta name="robots" content="noindex">
+        <!-- Custom HTML head -->
+        <!-- Pagefind CSS -->
+        <link href="pagefind/pagefind-ui.css" rel="stylesheet">
+        
+        <style>
+            /* Pagefind search container in menu bar */
+            #pagefind-search-container {
+                display: inline-block;
+                margin-right: 10px;
+                vertical-align: middle;
+                position: relative;
+            }
+            
+            #pagefind-search {
+                width: 250px;
+            }
+            
+            /* Override Pagefind UI styles for dropdown behavior */
+            #pagefind-search .pagefind-ui {
+                position: relative;
+            }
+            
+            #pagefind-search .pagefind-ui__form {
+                position: relative;
+                z-index: 1001;
+            }
+            
+            #pagefind-search .pagefind-ui__results-area {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                max-width: 600px;
+                max-height: 70vh;
+                overflow-y: auto;
+                background-color: var(--bg);
+                border: 1px solid var(--searchbar-border-color);
+                border-radius: 4px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                margin-top: 5px;
+            }
+            
+            /* Hide results area when empty */
+            #pagefind-search .pagefind-ui__results-area:empty {
+                display: none;
+                border: none;
+                box-shadow: none;
+            }
+            
+            @media (max-width: 768px) {
+                #pagefind-search {
+                    width: 180px;
+                }
+                
+                #pagefind-search .pagefind-ui__results-area {
+                    max-width: 90vw;
+                    left: auto;
+                    right: 0;
+                }
+            }
+            
+            /* Style adjustments for Pagefind UI */
+            .pagefind-ui__search-input {
+                background-color: var(--searchbar-bg);
+                color: var(--searchbar-fg);
+                border: 1px solid var(--searchbar-border-color);
+                border-radius: 3px;
+                padding: 5px 10px;
+                font-size: 0.9em;
+            }
+            
+            .pagefind-ui__search-input:focus {
+                outline: none;
+                border-color: var(--links);
+            }
+            
+            .pagefind-ui__results {
+                background-color: var(--bg);
+                color: var(--fg);
+                padding: 10px;
+            }
+            
+            .pagefind-ui__result {
+                border-bottom: 1px solid var(--searchbar-border-color);
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .pagefind-ui__result:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .pagefind-ui__result-link {
+                color: var(--links);
+                text-decoration: none;
+                font-weight: bold;
+            }
+            
+            .pagefind-ui__result-link:hover {
+                text-decoration: underline;
+            }
+            
+            .pagefind-ui__result-excerpt {
+                color: var(--fg);
+                margin-top: 5px;
+                font-size: 0.9em;
+                line-height: 1.4;
+            }
+            
+            /* Message styles */
+            .pagefind-ui__message {
+                padding: 10px;
+                color: var(--fg);
+                text-align: center;
+            }
+            
+            /* Button styles */
+            .pagefind-ui__button {
+                background-color: var(--searchbar-bg);
+                color: var(--searchbar-fg);
+                border: 1px solid var(--searchbar-border-color);
+                padding: 5px 10px;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            
+            .pagefind-ui__button:hover {
+                background-color: var(--searchbar-border-color);
+            }
+        </style>
+        
+        <script>
+            // Pagefindの初期化を遅延実行
+            function initializePagefind() {
+                // Find the menu bar
+                const menuBar = document.querySelector('#menu-bar');
+                if (!menuBar) {
+                    console.warn('Menu bar not found');
+                    return;
+                }
+                
+                // Create search container
+                const searchContainer = document.createElement('div');
+                searchContainer.id = 'pagefind-search-container';
+                searchContainer.innerHTML = '<div id="pagefind-search"></div>';
+                
+                // Insert before the right buttons
+                const rightButtons = menuBar.querySelector('.right-buttons');
+                if (rightButtons) {
+                    menuBar.insertBefore(searchContainer, rightButtons);
+                } else {
+                    menuBar.appendChild(searchContainer);
+                }
+                
+                // Load Pagefind UI script
+                const script = document.createElement('script');
+                script.src = 'pagefind/pagefind-ui.js';
+                script.onload = function() {
+                    // Initialize Pagefind UI after script loads
+                    if (typeof PagefindUI !== 'undefined') {
+                        new PagefindUI({ 
+                            element: "#pagefind-search",
+                            showSubResults: true,
+                            resetStyles: false,
+                            translations: {
+                                placeholder: "検索...",
+                                clear_search: "クリア",
+                                load_more: "さらに読み込む",
+                                search_label: "このサイトを検索",
+                                filters_label: "フィルター",
+                                zero_results: "[SEARCH_TERM] に一致する結果が見つかりませんでした",
+                                many_results: "[COUNT] 件の結果",
+                                one_result: "1 件の結果",
+                                alt_search: "[SEARCH_TERM] に一致する結果が見つかりませんでした。代わりに [DIFFERENT_TERM] の結果を表示しています",
+                                search_suggestion: "[TERM] を検索してみてください",
+                                searching: "検索中..."
+                            }
+                        });
+                        
+                        // Close search results when clicking outside
+                        document.addEventListener('click', function(event) {
+                            const searchContainer = document.getElementById('pagefind-search-container');
+                            if (searchContainer && !searchContainer.contains(event.target)) {
+                                const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                                if (resultsArea) {
+                                    resultsArea.style.display = 'none';
+                                }
+                            }
+                        });
+                        
+                        // Show results area when input is focused and has content
+                        const searchInput = document.querySelector('.pagefind-ui__search-input');
+                        if (searchInput) {
+                            searchInput.addEventListener('focus', function() {
+                                const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                                if (resultsArea && searchInput.value.trim() !== '') {
+                                    resultsArea.style.display = 'block';
+                                }
+                            });
+                            
+                            searchInput.addEventListener('input', function() {
+                                const resultsArea = document.querySelector('.pagefind-ui__results-area');
+                                if (resultsArea) {
+                                    if (searchInput.value.trim() !== '') {
+                                        resultsArea.style.display = 'block';
+                                    } else {
+                                        resultsArea.style.display = 'none';
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        console.error('PagefindUI failed to load');
+                    }
+                };
+                script.onerror = function() {
+                    console.error('Failed to load Pagefind UI script');
+                };
+                document.head.appendChild(script);
+            }
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializePagefind);
+            } else {
+                initializePagefind();
+            }
+        </script>        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./mdbook-admonish.css">
+    </head>
+    <body class="sidebar-iframe-inner">
+        <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html" target="_parent">はじめに</a></li><li class="chapter-item expanded affix "><li class="part-title">第1部: 基礎編</li><li class="chapter-item expanded "><a href="ch01-introduction/index.html" target="_parent"><strong aria-hidden="true">1.</strong> Rustと計算物理学</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch01-introduction/why-rust.html" target="_parent"><strong aria-hidden="true">1.1.</strong> なぜRustなのか</a></li><li class="chapter-item expanded "><a href="ch01-introduction/setup.html" target="_parent"><strong aria-hidden="true">1.2.</strong> 開発環境のセットアップ</a></li><li class="chapter-item expanded "><a href="ch01-introduction/how-to-use.html" target="_parent"><strong aria-hidden="true">1.3.</strong> 本書の使い方</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-basics/index.html" target="_parent"><strong aria-hidden="true">2.</strong> 数値計算の基礎</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch02-basics/floating-point.html" target="_parent"><strong aria-hidden="true">2.1.</strong> 浮動小数点演算と誤差</a></li><li class="chapter-item expanded "><a href="ch02-basics/arrays-vectors.html" target="_parent"><strong aria-hidden="true">2.2.</strong> 配列とベクトル演算</a></li><li class="chapter-item expanded "><a href="ch02-basics/ndarray.html" target="_parent"><strong aria-hidden="true">2.3.</strong> 外部クレートの活用（ndarray入門）</a></li><li class="chapter-item expanded "><a href="ch02-basics/xprec.html" target="_parent"><strong aria-hidden="true">2.4.</strong> 高精度演算（xprec-rs）</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">第2部: 数値計算手法</li><li class="chapter-item expanded "><a href="ch03-calculus/index.html" target="_parent"><strong aria-hidden="true">3.</strong> 数値微分と数値積分</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch03-calculus/differentiation.html" target="_parent"><strong aria-hidden="true">3.1.</strong> 数値微分</a></li><li class="chapter-item expanded "><a href="ch03-calculus/integration.html" target="_parent"><strong aria-hidden="true">3.2.</strong> 数値積分（台形則・シンプソン則）</a></li><li class="chapter-item expanded "><a href="ch03-calculus/monte-carlo.html" target="_parent"><strong aria-hidden="true">3.3.</strong> モンテカルロ積分</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-linear-algebra/index.html" target="_parent"><strong aria-hidden="true">4.</strong> 線形代数</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch04-linear-algebra/matrix-ops.html" target="_parent"><strong aria-hidden="true">4.1.</strong> 行列演算の基礎</a></li><li class="chapter-item expanded "><a href="ch04-linear-algebra/linear-systems.html" target="_parent"><strong aria-hidden="true">4.2.</strong> 連立一次方程式（ガウスの消去法）</a></li><li class="chapter-item expanded "><a href="ch04-linear-algebra/eigenvalue.html" target="_parent"><strong aria-hidden="true">4.3.</strong> 固有値問題</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-ode/index.html" target="_parent"><strong aria-hidden="true">5.</strong> 常微分方程式</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch05-ode/euler.html" target="_parent"><strong aria-hidden="true">5.1.</strong> オイラー法</a></li><li class="chapter-item expanded "><a href="ch05-ode/runge-kutta.html" target="_parent"><strong aria-hidden="true">5.2.</strong> ルンゲ=クッタ法</a></li><li class="chapter-item expanded "><a href="ch05-ode/oscillation.html" target="_parent"><strong aria-hidden="true">5.3.</strong> 応用例：単振動と減衰振動</a></li></ol></li><li class="chapter-item expanded "><a href="ch06-pde/index.html" target="_parent"><strong aria-hidden="true">6.</strong> 偏微分方程式</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch06-pde/finite-difference.html" target="_parent"><strong aria-hidden="true">6.1.</strong> 差分法の基礎</a></li><li class="chapter-item expanded "><a href="ch06-pde/diffusion.html" target="_parent"><strong aria-hidden="true">6.2.</strong> 拡散方程式</a></li><li class="chapter-item expanded "><a href="ch06-pde/wave.html" target="_parent"><strong aria-hidden="true">6.3.</strong> 波動方程式</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">第3部: 物理シミュレーション</li><li class="chapter-item expanded "><a href="ch07-classical-mechanics/index.html" target="_parent"><strong aria-hidden="true">7.</strong> 古典力学シミュレーション</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch07-classical-mechanics/particle-motion.html" target="_parent"><strong aria-hidden="true">7.1.</strong> 質点系の運動</a></li><li class="chapter-item expanded "><a href="ch07-classical-mechanics/kepler.html" target="_parent"><strong aria-hidden="true">7.2.</strong> 惑星運動（ケプラー問題）</a></li><li class="chapter-item expanded "><a href="ch07-classical-mechanics/rigid-body.html" target="_parent"><strong aria-hidden="true">7.3.</strong> 剛体の運動</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-monte-carlo/index.html" target="_parent"><strong aria-hidden="true">8.</strong> モンテカルロ法</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch08-monte-carlo/random-walk.html" target="_parent"><strong aria-hidden="true">8.1.</strong> 乱数生成とランダムウォーク</a></li><li class="chapter-item expanded "><a href="ch08-monte-carlo/integration.html" target="_parent"><strong aria-hidden="true">8.2.</strong> モンテカルロ積分の詳細</a></li><li class="chapter-item expanded "><a href="ch08-monte-carlo/importance-sampling.html" target="_parent"><strong aria-hidden="true">8.3.</strong> 重点サンプリング</a></li><li class="chapter-item expanded "><a href="ch08-monte-carlo/mcmc.html" target="_parent"><strong aria-hidden="true">8.4.</strong> マルコフ連鎖モンテカルロ法</a></li></ol></li><li class="chapter-item expanded "><a href="ch09-statistical-mechanics/index.html" target="_parent"><strong aria-hidden="true">9.</strong> 統計力学シミュレーション</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch09-statistical-mechanics/ising-basics.html" target="_parent"><strong aria-hidden="true">9.1.</strong> イジング模型の基礎</a></li><li class="chapter-item expanded "><a href="ch09-statistical-mechanics/metropolis.html" target="_parent"><strong aria-hidden="true">9.2.</strong> メトロポリス法</a></li><li class="chapter-item expanded "><a href="ch09-statistical-mechanics/phase-transition.html" target="_parent"><strong aria-hidden="true">9.3.</strong> 相転移とクリティカル現象</a></li><li class="chapter-item expanded "><a href="ch09-statistical-mechanics/other-models.html" target="_parent"><strong aria-hidden="true">9.4.</strong> その他の格子模型</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-quantum-mechanics/index.html" target="_parent"><strong aria-hidden="true">10.</strong> 量子力学</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch10-quantum-mechanics/schrodinger.html" target="_parent"><strong aria-hidden="true">10.1.</strong> シュレーディンガー方程式の数値解法</a></li><li class="chapter-item expanded "><a href="ch10-quantum-mechanics/harmonic-oscillator.html" target="_parent"><strong aria-hidden="true">10.2.</strong> 調和振動子</a></li><li class="chapter-item expanded "><a href="ch10-quantum-mechanics/potential-well.html" target="_parent"><strong aria-hidden="true">10.3.</strong> ポテンシャル井戸問題</a></li></ol></li><li class="chapter-item expanded "><a href="ch11-fluid-dynamics/index.html" target="_parent"><strong aria-hidden="true">11.</strong> 流体力学</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch11-fluid-dynamics/lattice-boltzmann.html" target="_parent"><strong aria-hidden="true">11.1.</strong> 格子ボルツマン法入門</a></li><li class="chapter-item expanded "><a href="ch11-fluid-dynamics/navier-stokes.html" target="_parent"><strong aria-hidden="true">11.2.</strong> ナビエ-ストークス方程式</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">第4部: 高度なトピック</li><li class="chapter-item expanded "><a href="ch12-parallel/index.html" target="_parent"><strong aria-hidden="true">12.</strong> 並列計算</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch12-parallel/rayon.html" target="_parent"><strong aria-hidden="true">12.1.</strong> RayonによるCPU並列化</a></li><li class="chapter-item expanded "><a href="ch12-parallel/simd.html" target="_parent"><strong aria-hidden="true">12.2.</strong> SIMD最適化</a></li><li class="chapter-item expanded "><a href="ch12-parallel/profiling.html" target="_parent"><strong aria-hidden="true">12.3.</strong> パフォーマンス測定とプロファイリング</a></li></ol></li><li class="chapter-item expanded "><a href="ch13-visualization/index.html" target="_parent"><strong aria-hidden="true">13.</strong> 可視化</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch13-visualization/plotters.html" target="_parent"><strong aria-hidden="true">13.1.</strong> plottersによる2Dプロット</a></li><li class="chapter-item expanded "><a href="ch13-visualization/data-io.html" target="_parent"><strong aria-hidden="true">13.2.</strong> データの保存と読み込み</a></li><li class="chapter-item expanded "><a href="ch13-visualization/animation.html" target="_parent"><strong aria-hidden="true">13.3.</strong> アニメーション作成</a></li></ol></li><li class="chapter-item expanded "><a href="ch14-fft/index.html" target="_parent"><strong aria-hidden="true">14.</strong> FFT（高速フーリエ変換）</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch14-fft/dft-basics.html" target="_parent"><strong aria-hidden="true">14.1.</strong> 離散フーリエ変換の基礎</a></li><li class="chapter-item expanded "><a href="ch14-fft/fft-application.html" target="_parent"><strong aria-hidden="true">14.2.</strong> FFTの実装と応用</a></li><li class="chapter-item expanded "><a href="ch14-fft/spectral-analysis.html" target="_parent"><strong aria-hidden="true">14.3.</strong> スペクトル解析</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">付録</li><li class="chapter-item expanded "><a href="appendix/a-references.html" target="_parent"><strong aria-hidden="true">15.</strong> 付録A: 参考資料</a></li><li class="chapter-item expanded "><a href="appendix/b-crates.html" target="_parent"><strong aria-hidden="true">16.</strong> 付録B: 有用なクレート集</a></li><li class="chapter-item expanded "><a href="appendix/c-debugging.html" target="_parent"><strong aria-hidden="true">17.</strong> 付録C: デバッグとトラブルシューティング</a></li><li class="chapter-item expanded "><a href="appendix/d-math-background.html" target="_parent"><strong aria-hidden="true">18.</strong> 付録D: 数学的背景</a></li></ol>
+    </body>
+</html>
