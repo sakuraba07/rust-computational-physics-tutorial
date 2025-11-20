@@ -4,6 +4,7 @@
 "cargo:mdbook-typst-math" = "latest"
 "cargo:pagefind" = { version = "latest", features = "extended" }
 "cargo:lychee" = "latest"
+"cargo:miniserve" = "latest"
 
 [tasks.clean]
 description = "Clean build artifacts"
@@ -17,7 +18,7 @@ mdbook build
 echo "✅ Build completed\n"
 
 echo "🔍 Generating search index..."
-pagefind --site book
+pagefind --site book --force-language ja --exclude-selectors "nav,.sidebar,.menu-bar,.nav-wrapper,.nav-wide-wrapper,#mdbook-sidebar,#mdbook-menu-bar,.mdbook-help-container"
 echo "✅ Index generated\n"
 
 echo "🔗 Checking links..."
@@ -25,4 +26,13 @@ lychee book/
 echo "✅ Links checked\n"
 
 echo "🎉 Done!"
+"""
+
+[tasks.serve]
+description = "Build and serve the book with search functionality"
+depends = ["build"]
+run = """
+echo "🚀 Starting server on http://localhost:3000..."
+echo "Press Ctrl+C to stop\n"
+miniserve book --port 3000 --index index.html
 """

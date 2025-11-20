@@ -14,6 +14,7 @@ default-theme = "light"
 preferred-dark-theme = "navy"
 git-repository-url = "https://github.com/sakuraba07/rust-computational-physics-tutorial"
 edit-url-template = "https://github.com/sakuraba07/rust-computational-physics-tutorial/edit/main/{path}"
+additional-css = ["theme/css/pagefind.css"]
 
 [output.html.search]
 enable = false
