@@ -17,22 +17,3 @@ edit-url-template = "https://github.com/sakuraba07/rust-computational-physics-tu
 
 [output.html.search]
 enable = false
-
-# [output.linkcheck]
-# リンク切れをチェックする際の設定
-# CI/CD用の厳密なチェック設定
-
-# 外部リンク（http/https）もチェックする
-# follow-web-links = true
-# HTTPリクエストのタイムアウト（秒）
-# GitHubは通常高速なので短めに設定
-# timeout = 15
-# キャッシュの有効期限（秒）
-# CI環境では毎回新鮮な状態でチェックするため短めに設定
-# cache-timeout = 3600  # 1時間
-# 警告レベル
-# CI/CDで使用するため、リンク切れがあればビルドを失敗させる
-# warning-policy = "error"
-# User-Agent設定（オプション）
-# GitHubのレート制限を避けるため、適切なUser-Agentを設定
-# user-agent = "mdbook-linkcheck"
