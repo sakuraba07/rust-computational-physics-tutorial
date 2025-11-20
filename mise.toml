@@ -12,9 +12,19 @@ run = "rm -rf book"
 [tasks.build]
 description = "Build mdbook and generate search index"
 run = """
+echo "📚 Building mdbook..."
 mdbook build
+echo "✅ Build completed\n"
+
+echo "🔍 Generating search index..."
 pagefind --site book
+echo "✅ Index generated\n"
+
+echo "🔗 Checking links..."
 lychee book/
+echo "✅ Links checked\n"
+
+echo "🎉 Done!"
 """
 
 [tasks.server]
