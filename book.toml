@@ -6,7 +6,7 @@ src = "src"
 
 [preprocessor.mermaid]
 
-# [preprocessor.typst-math]
+[preprocessor.typst-math]
 
 [preprocessor.last-changed]
 command = "mdbook-last-changed"
