@@ -7,7 +7,7 @@
 - [Rustと計算物理学](./ch01-introduction/README.md)
   - [なぜRustなのか](./ch01-introduction/why-rust.md)
   - [開発環境のセットアップ](./ch01-introduction/setup.md)
-  - [数値計算の結果の描画](./ch01-introduction/plotting.md)]
+  - [数値計算の結果の描画](./ch01-introduction/plotting.md)
   - [本書の使い方](./ch01-introduction/how-to-use.md)
 
 - [数値計算の基礎](./ch02-basics/README.md)
