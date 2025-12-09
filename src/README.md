@@ -52,59 +52,135 @@
 
 本書の各章には依存関係があります。基本的には順番に読み進めることを推奨しますが、特定のトピックに興味がある場合は、以下の依存関係図を参考に必要な章を選んで読むことも可能です。
 
-```mermaid
-flowchart TD
-    subgraph part1["第1部: 基礎編"]
-        ch01["第1章<br/>Rustと計算物理学"]
-        ch02["第2章<br/>数値計算の基礎"]
-    end
+```d2
+direction: down
 
-    subgraph part2["第2部:<br/>数値計算手法"]
-        ch04["第4章<br/>線形代数"]
-        ch03["第3章<br/>数値微分と数値積分"]
-        ch09["第9章<br/>モンテカルロ法"]
-        ch05["第5章<br/>非線形方程式と最適化"]
-        ch06["第6章<br/>フーリエ解析"]
-        ch07["第7章<br/>常微分方程式"]
-        ch08["第8章<br/>偏微分方程式"]
+# 第1部
+part1: {
+  label: 第1部
+  style.fill: "#e3f2fd"
+  style.stroke: "#1976d2"
 
-        %% 配置調整用のinvisible link（同じ行に並べる）
-        ch04 ~~~ ch03 ~~~ ch09
-        ch05 ~~~ ch06 ~~~ ch07
-    end
+  ch01: {
+    shape: rectangle
+    label: "第1章\nRustと計算物理学"
+  }
 
-    subgraph part3["第3部: 物理シミュレーション"]
-        direction LR
-        ch10["第10章<br/>古典力学"]
-        ch11["第11章<br/>流体力学"]
-        ch12["第12章<br/>統計力学"]
-        ch13["第13章<br/>量子力学"]
-    end
+  ch02: {
+    shape: rectangle
+    label: "第2章\n数値計算の基礎"
+  }
 
-    %% 第1部内
-    ch01 --> ch02
+  ch01 -> ch02
+}
 
-    %% 第1部 → 第2部
-    ch02 --> ch03
-    ch02 --> ch04
-    ch02 --> ch09
+# 第2部
+part2: {
+  label: 第2部
+  style.fill: "#f3e5f5"
+  style.stroke: "#7b1fa2"
 
-    %% 第2部内の依存関係
-    ch03 --> ch05
-    ch03 --> ch07
-    ch03 -.-> ch06
-    ch04 -.-> ch05
-    ch04 -.-> ch07
-    ch04 --> ch08
-    ch07 --> ch08
+  ch03: {
+    shape: rectangle
+    label: "第3章\n数値微分と数値積分"
+  }
 
-    %% 第2部 → 第3部
-    ch07 --> ch10
-    ch08 --> ch11
-    ch09 --> ch12
-    ch04 --> ch13
-    ch06 -.-> ch13
-    ch07 --> ch13
+  ch04: {
+    shape: rectangle
+    label: "第4章\n線形代数"
+  }
+
+  ch05: {
+    shape: rectangle
+    label: "第5章\n非線形方程式と最適化"
+  }
+
+  ch06: {
+    shape: rectangle
+    label: "第6章\nフーリエ解析"
+  }
+
+  ch07: {
+    shape: rectangle
+    label: "第7章\n常微分方程式"
+  }
+
+  ch08: {
+    shape: rectangle
+    label: "第8章\n偏微分方程式"
+  }
+
+  ch09: {
+    shape: rectangle
+    label: "第9章\nモンテカルロ法"
+  }
+
+  # 第2部内の依存関係
+  ch03 -> ch05
+  ch03 -> ch06: {
+    style.stroke-dash: 3
+  }
+  ch03 -> ch07
+  ch03 -> ch09: {
+    style.stroke-dash: 3
+  }
+
+  ch04 -> ch05: {
+    style.stroke-dash: 3
+  }
+  ch04 -> ch07: {
+    style.stroke-dash: 3
+  }
+  ch04 -> ch08
+
+  ch07 -> ch08
+}
+
+# 第3部
+part3: {
+  label: 第3部
+  style.fill: "#c8e6c9"
+  style.stroke: "#388e3c"
+
+  ch10: {
+    shape: rectangle
+    label: "第10章\n古典力学"
+  }
+
+  ch11: {
+    shape: rectangle
+    label: "第11章\n流体力学"
+  }
+
+  ch12: {
+    shape: rectangle
+    label: "第12章\n統計力学"
+  }
+
+  ch13: {
+    shape: rectangle
+    label: "第13章\n量子力学"
+  }
+}
+
+# 第2章→第2部全体への依存関係
+part1.ch02 -> part2
+
+# 第2部→第3部の依存関係
+part2.ch07 -> part3.ch10
+part2.ch04 -> part3.ch10: {
+  style.stroke-dash: 3
+}
+
+part2.ch08 -> part3.ch11
+
+part2.ch09 -> part3.ch12
+
+part2.ch04 -> part3.ch13
+part2.ch07 -> part3.ch13
+part2.ch06 -> part3.ch13: {
+  style.stroke-dash: 3
+}
 
 ```
 

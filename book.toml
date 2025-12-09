@@ -4,7 +4,9 @@ authors = ["sakuraba07"]
 language = "ja"
 src = "src"
 
-[preprocessor.mermaid]
+[preprocessor.d2]
+inline = false
+output-dir = "d2"
 
 [preprocessor.typst-math]
 fonts = ["Fira Math"]
