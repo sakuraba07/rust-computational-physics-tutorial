@@ -115,9 +115,12 @@ CSVファイルをExcelで開き、データ範囲を選択して「挿入」タ
 
 ### plottersの追加
 
+`plotters`と共に、CSVファイルを読み込むための`csv`クレートも依存関係に追加します。
+
 ```toml
 [dependencies]
 plotters = "0.3"
+csv = "1.4" # CSVファイルの読み込みに必要
 ```
 
 ### kiss3dの追加
@@ -130,102 +133,129 @@ nalgebra = "0.32"  # kiss3dの3Dベクトル・行列計算に使用
 
 ## plottersによる2Dグラフ描画
 
-### 基本的な使い方
+`plotters`を使って、先に「データファイルへの出力」で作成した`output.csv`を読み込んでグラフを描画してみましょう。
 
-以下のコードは、正弦波のグラフを描画して`sine_wave.png`というファイル名で保存します。
+> [!NOTE]
+> `plotters`で日本語のような非ASCII文字を表示するには、フォントファイルへのパスを正しく指定する必要があります。これは環境によって異なり、追加のセットアップが必要になる場合があります。
+> このチュートリアルでは、追加設定なしでどの環境でもコードが動作することを優先し、グラフ内のテキストには英語を使用します。
+
+> [!NOTE]
+> この先のコードを実行する前に、`output.csv`が生成されていることを確認してください。もし生成されていない場合は、「CSVファイルへの出力」のコードを実行してください。
+
+### CSVからのデータ読み込みと描画 (単一系列)
+
+以下のコードは、`output.csv`ファイルを読み込み、`t`と`x`のデータを使ってグラフを描画し、`plot-single.png`というファイル名で保存します。
 
 ```rust
 use plotters::prelude::*;
+use csv;
+use std::error::Error;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 描画先のバックエンドとして800x600ピクセルのPNG画像を指定
-    let root = BitMapBackend::new("sine_wave.png", (800, 600)).into_drawing_area();
+fn main() -> Result<(), Box<dyn Error>> {
+    // 1. CSVファイルからデータを読み込む
+    let mut reader = csv::Reader::from_path("output.csv")?;
+    let data: Vec<(f64, f64)> = reader
+        .records()
+        .map(|r| {
+            let record = r.unwrap();
+            (record[0].parse().unwrap(), record[1].parse().unwrap())
+        })
+        .collect();
+
+    // 2. 描画バックエンドのセットアップ
+    let root = BitMapBackend::new("plot-single.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
 
-    // グラフの各種設定
+    // 3. チャートの構築
     let mut chart = ChartBuilder::on(&root)
-        .caption("正弦波", ("sans-serif", 30))
+        .caption("Position x vs. Time t (from CSV)", ("sans-serif", 30))
         .margin(20)
         .x_label_area_size(40)
         .y_label_area_size(40)
         .build_cartesian_2d(0.0..10.0, -1.5..1.5)?;
 
-    // 軸とグリッド線の描画
-    chart.configure_mesh().draw()?;
+    // 4. メッシュ (軸とグリッド線) の描画
+    chart.configure_mesh()
+        .x_desc("Time t")
+        .y_desc("Position x")
+        .draw()?;
 
-    // データ系列の描画
-    chart.draw_series(LineSeries::new(
-        (0..=1000).map(|i| {
-            let x = i as f64 / 100.0;
-            (x, x.sin())
-        }),
-        &RED,
-    ))?;
+    // 5. データ系列 (t, x) の描画
+    chart.draw_series(LineSeries::new(data, &RED))?;
 
-    // 描画内容をファイルに書き出す
+    // 6. ファイルへの保存
     root.present()?;
-    println!("sine_wave.png を生成しました");
+    println!("plot-single.png を生成しました");
     Ok(())
 }
 ```
 
-実行すると、カレントディレクトリに`sine_wave.png`が生成されます。
-
 ### コードの解説
 
-`plotters`でのグラフ描画は、概ね以下の手順で行います。
+`plotters`でCSVデータからグラフを描画する手順は以下の通りです。
 
-1.  **バックエンドの作成**: `BitMapBackend` (PNG出力) や `SVGBackend` (SVG出力) など、描画先を指定します。
-2.  **背景の塗りつぶし**: `fill(&WHITE)`などで背景色を設定します。
+1.  **データの読み込み**: `csv`クレートを使って`output.csv`を読み込み、プロットしたいデータ(`t`と`x`)を`Vec<(f64, f64)>`のような形式に変換します。
+2.  **バックエンドの作成**: `BitMapBackend` (PNG出力) など、描画先を指定します。
 3.  **チャートの構築**: `ChartBuilder`で軸の範囲、タイトル、マージンなどを設定します。
 4.  **メッシュ (軸とグリッド線) の描画**: `configure_mesh().draw()`で描画します。
-5.  **データ系列の描画**: `draw_series`に`LineSeries` (折れ線グラフ) などを渡してプロットします。
+5.  **データ系列の描画**: `draw_series`に`LineSeries`と読み込んだデータを渡してプロットします。
 6.  **ファイルへの保存**: `present()`でここまでの描画内容をファイルに書き出します。
 
 ### 複数系列の描画
 
-複数のデータ系列を同じグラフに描画するには、`draw_series`を複数回呼び出します。凡例 (legend) も追加できます。
+次に、`output.csv`に含まれる「位置 `x`」と「速度 `v`」の両方を一枚のグラフに描画します。
 
 ```rust
 use plotters::prelude::*;
+use csv;
+use std::error::Error;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let root = BitMapBackend::new("multi_plot.png", (800, 600)).into_drawing_area();
+fn main() -> Result<(), Box<dyn Error>> {
+    // CSVからデータを読み込む
+    let mut reader = csv::Reader::from_path("output.csv")?;
+    let records: Vec<_> = reader.records().collect();
+
+    let root = BitMapBackend::new("plot-multi.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
 
     let mut chart = ChartBuilder::on(&root)
-        .caption("三角関数", ("sans-serif", 30))
+        .caption("Position and Velocity (from CSV)", ("sans-serif", 30))
         .margin(20)
         .x_label_area_size(40)
         .y_label_area_size(40)
-        .build_cartesian_2d(0.0..10.0, -1.5..1.5)?;
+        .build_cartesian_2d(0.0..12.0, -1.5..1.5)?; // X軸の範囲を広げて凡例のスペースを確保
 
     chart.configure_mesh()
-        .x_desc("x")
-        .y_desc("y")
+        .x_desc("Time t")
+        .y_desc("Value")
         .draw()?;
 
-    // sin(x)
-    chart.draw_series(LineSeries::new(
-        (0..=1000).map(|i| {
-            let x = i as f64 / 100.0;
-            (x, x.sin())
+    // 位置 x のデータ系列
+    let pos_series = LineSeries::new(
+        records.iter().map(|r| {
+            let record = r.as_ref().unwrap();
+            (record[0].parse().unwrap(), record[1].parse().unwrap())
         }),
         &RED,
-    ))?
-    .label("sin(x)")
-    .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+    );
 
-    // cos(x)
-    chart.draw_series(LineSeries::new(
-        (0..=1000).map(|i| {
-            let x = i as f64 / 100.0;
-            (x, x.cos())
+    // 速度 v のデータ系列
+    let vel_series = LineSeries::new(
+        records.iter().map(|r| {
+            let record = r.as_ref().unwrap();
+            (record[0].parse().unwrap(), record[2].parse().unwrap())
         }),
         &BLUE,
-    ))?
-    .label("cos(x)")
-    .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
+    );
+
+    // 系列を描画し、凡例を設定
+    chart.draw_series(pos_series)?
+        .label("Position x")
+        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+
+    chart.draw_series(vel_series)?
+        .label("Velocity v")
+        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
 
     // 凡例の描画
     chart.configure_series_labels()
@@ -233,6 +263,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .draw()?;
 
     root.present()?;
+    println!("plot-multi.png を生成しました");
     Ok(())
 }
 ```
