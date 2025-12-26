@@ -207,8 +207,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 次に、`output.csv`に含まれる「位置 `x`」と「速度 `v`」の両方を一枚のグラフに描画します。
 
 ```rust,noplayground
-use plotters::prelude::*;
 use csv;
+use plotters::prelude::*;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -224,9 +224,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         .margin(20)
         .x_label_area_size(40)
         .y_label_area_size(40)
-        .build_cartesian_2d(0.0..12.0, -1.5..1.5)?; // X軸の範囲を広げて凡例のスペースを確保
-
-    chart.configure_mesh()
+        .build_cartesian_2d(0.0..10.0, -1.5..1.5)?;
+    chart
+        .configure_mesh()
         .x_desc("Time t")
         .y_desc("Value")
         .draw()?;
@@ -250,16 +250,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     // 系列を描画し、凡例を設定
-    chart.draw_series(pos_series)?
+    chart
+        .draw_series(pos_series)?
         .label("Position x")
         .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
 
-    chart.draw_series(vel_series)?
+    chart
+        .draw_series(vel_series)?
         .label("Velocity v")
         .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
 
     // 凡例の描画
-    chart.configure_series_labels()
+    chart
+        .configure_series_labels()
+        // 凡例の位置を右上に指定
+        .position(SeriesLabelPosition::UpperRight)
         .border_style(&BLACK)
         .draw()?;
 
