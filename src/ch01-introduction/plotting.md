@@ -147,7 +147,7 @@ nalgebra = "0.32"  # kiss3dの3Dベクトル・行列計算に使用
 
 以下のコードは、`output.csv`ファイルを読み込み、`t`と`x`のデータを使ってグラフを描画し、`plot-single.png`というファイル名で保存します。
 
-```rust
+```rust,noplayground
 use plotters::prelude::*;
 use csv;
 use std::error::Error;
@@ -206,7 +206,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 次に、`output.csv`に含まれる「位置 `x`」と「速度 `v`」の両方を一枚のグラフに描画します。
 
-```rust
+```rust,noplayground
 use plotters::prelude::*;
 use csv;
 use std::error::Error;
@@ -275,7 +275,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 以下のコードは、回転する立方体を描画するウィンドウを表示します。
 
-```rust
+```rust,noplayground
 use kiss3d::light::Light;
 use kiss3d::window::Window;
 use nalgebra::{UnitQuaternion, Vector3};
