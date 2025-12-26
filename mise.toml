@@ -7,6 +7,7 @@
 "cargo:pagefind" = { version = "latest", features = "extended" }
 "cargo:lychee" = "latest"
 "cargo:miniserve" = "latest"
+"cargo:dprint" = "latest"
 "github:terrastruct/d2" = { version = "latest", bin_path = "d2-v{version}/bin" }
 
 [tasks.clean]
@@ -14,7 +15,12 @@ description = "Clean build artifacts"
 run = "rm -rf book"
 
 [tasks.build]
+description = "Build the book and check for broken links"
+run = ["mise run build-core", "mise run check"]
+
+[tasks.build-core]
 description = "Build mdbook and generate search index"
+depends = ["clean"]
 run = """
 echo "📚 Building mdbook..."
 mdbook build
@@ -24,11 +30,18 @@ echo "🔍 Generating search index..."
 pagefind --site book --force-language ja --exclude-selectors "nav,.sidebar,.menu-bar,.nav-wrapper,.nav-wide-wrapper,#mdbook-sidebar,#mdbook-menu-bar,.mdbook-help-container"
 echo "✅ Index generated\n"
 
+echo "🎉 Done!"
+"""
+
+[tasks.check]
+description = "Check links and formatting"
+run = """
+echo "🎨 Checking formatting..."
+dprint check
+echo "✅ Formatting checked\n"
 echo "🔗 Checking links..."
 lychee --root-dir book book/
 echo "✅ Links checked\n"
-
-echo "🎉 Done!"
 """
 
 [tasks.serve]
