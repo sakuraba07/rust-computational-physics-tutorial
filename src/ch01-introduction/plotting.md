@@ -6,11 +6,11 @@
 
 ## 可視化ツールの選択
 
-本書では、開発環境をRustで統一する観点から`plotters`や`kiss3d`といったRust製ライブラリを用いますが、読者の皆様はご自身が使い慣れたツールを自由にご利用いただけます。
+本書では、開発環境をRustで統一する観点から`plotters`や`three-d`といったRust製ライブラリを用いますが、読者の皆様はご自身が使い慣れたツールを自由にご利用いただけます。
 
 可視化は、本書で解説する数値計算アルゴリズム自体とは独立した、計算結果を理解・分析するための補助的な手段です。Python (`matplotlib`)、`gnuplot`、Excel、MATLAB、Mathematicaなど、既に習熟されているツールがあれば、そちらの利用を推奨します。
 
-本書のコード例から`plotters`や`kiss3d`に関する部分を省略し、計算結果をCSVファイルに出力した上で、任意のツールで可視化するというアプローチを採っていただいても全く問題ありません。
+本書のコード例から`plotters`や`three-d`に関する部分を省略し、計算結果をCSVファイルに出力した上で、任意のツールで可視化するというアプローチを採っていただいても全く問題ありません。
 
 ## データファイルへの出力
 
@@ -99,16 +99,15 @@ CSVファイルをExcelで開き、データ範囲を選択して「挿入」タ
 - 純粋なRustで実装されており、外部ライブラリへの依存が最小限
 - 高いカスタマイズ性
 
-### kiss3d (3D可視化)
+### three-d (3D可視化)
 
-[kiss3d](https://crates.io/crates/kiss3d)は、シンプルさを特徴とする使いやすい3Dグラフィックスライブラリです。
+[three-d](https://crates.io/crates/three-d)は、2Dおよび3Dグラフィックス向けの柔軟で高機能なレンダリングライブラリです。
 
 **主な特徴:**
 
-- リアルタイムの3D描画に対応
-- シンプルなAPIで手軽に3Dシーンを構築可能
-- 球、立方体、円柱などの基本図形を容易に描画
-- マウスによるカメラ操作や簡易的なアニメーションをサポート
+- 最新のグラフィックスAPI（Windows/LinuxではOpenGL、WebではWebGL2）をサポート
+- 物理ベースレンダリング（PBR）、ライティング、シェーダーなどの高度な機能を提供
+- `kiss3d`のようなシンプルなライブラリに比べ学習コストは高いですが、より詳細な制御と高い表現力が得られます。
 
 ## 可視化ライブラリの導入
 
@@ -124,12 +123,11 @@ plotters = "0.3"
 csv = "1.4" # CSVファイルの読み込みに必要
 ```
 
-### kiss3dの追加
+### three-dの追加
 
 ```toml:Cargo.toml
 [dependencies]
-kiss3d = "0.35"
-nalgebra = "0.32" # kiss3dが内部で利用する3Dベクトル・行列計算ライブラリ
+three-d = "0.18"
 ```
 
 ## plottersによる2Dグラフ描画
@@ -350,39 +348,131 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 ![複数系列のプロット結果](../images/plot-multi.avif)
 
-## kiss3dによる3D可視化
+## three-dによる3D可視化
 
 ### 基本的な使い方
 
 以下のコードは、回転する立方体を描画するウィンドウを表示します。
 
 ```rust,noplayground
-use kiss3d::light::Light;
-use kiss3d::window::Window;
-use nalgebra::{UnitQuaternion, Vector3};
+use three_d::{
+    AmbientLight, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
+    Mat4, Mesh, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings, degrees, radians,
+    vec3,
+};
 
-#[tokio::main]
-async fn main() {
+// ウィンドウ設定
+const WINDOW_TITLE: &str = "three-d: Cube";
+const WINDOW_MAX_SIZE: (u32, u32) = (1280, 720);
+
+// カメラ設定
+const CAMERA_POSITION: (f32, f32, f32) = (0.0, 2.0, 4.0);
+const CAMERA_TARGET: (f32, f32, f32) = (0.0, 0.0, 0.0);
+const CAMERA_UP: (f32, f32, f32) = (0.0, 1.0, 0.0);
+const CAMERA_FOV_DEGREES: f32 = 45.0;
+const CAMERA_NEAR: f32 = 0.1;
+const CAMERA_FAR: f32 = 100.0;
+
+// カメラコントロール設定
+const ORBIT_MIN_DISTANCE: f32 = 1.0;
+const ORBIT_MAX_DISTANCE: f32 = 10.0;
+
+// 立方体の色 (RGBA: 青色)
+const CUBE_COLOR: Srgba = Srgba::new(0, 128, 255, 255);
+
+// 光源設定
+const DIRECTIONAL_LIGHT_INTENSITY: f32 = 2.0;
+const DIRECTIONAL_LIGHT_DIRECTION: (f32, f32, f32) = (0.0, -1.0, -1.0);
+const AMBIENT_LIGHT_INTENSITY: f32 = 0.4;
+
+// 回転速度 (ラジアン/秒)
+const ROTATION_SPEED: f32 = 1.0;
+
+// 背景色 (RGBA)
+const BACKGROUND_COLOR: (f32, f32, f32, f32) = (0.1, 0.1, 0.1, 1.0);
+
+fn main() {
     // ウィンドウの作成
-    let mut window = Window::new("kiss3d: Cube");
+    let window = Window::new(WindowSettings {
+        title: WINDOW_TITLE.to_string(),
+        max_size: Some(WINDOW_MAX_SIZE),
+        ..Default::default()
+    })
+    .expect("ウィンドウの作成に失敗しました");
 
-    // 立方体の追加
-    let mut cube = window.add_cube(1.0, 1.0, 1.0);
-    cube.set_color(0.0, 0.5, 1.0); // 青色
+    let context = window.gl();
+
+    // カメラの設定
+    let mut camera = Camera::new_perspective(
+        window.viewport(),
+        vec3(CAMERA_POSITION.0, CAMERA_POSITION.1, CAMERA_POSITION.2),
+        vec3(CAMERA_TARGET.0, CAMERA_TARGET.1, CAMERA_TARGET.2),
+        vec3(CAMERA_UP.0, CAMERA_UP.1, CAMERA_UP.2),
+        degrees(CAMERA_FOV_DEGREES),
+        CAMERA_NEAR,
+        CAMERA_FAR,
+    );
+
+    // カメラコントローラーの設定（マウスで視点操作可能）
+    let mut control = OrbitControl::new(camera.target(), ORBIT_MIN_DISTANCE, ORBIT_MAX_DISTANCE);
+
+    // 立方体の作成
+    let mut cube = Gm::new(
+        Mesh::new(&context, &CpuMesh::cube()),
+        PhysicalMaterial::new_opaque(
+            &context,
+            &CpuMaterial {
+                albedo: CUBE_COLOR,
+                ..Default::default()
+            },
+        ),
+    );
 
     // 光源の設定
-    window.set_light(Light::StickToCamera);
+    let light = DirectionalLight::new(
+        &context,
+        DIRECTIONAL_LIGHT_INTENSITY,
+        Srgba::WHITE,
+        vec3(
+            DIRECTIONAL_LIGHT_DIRECTION.0,
+            DIRECTIONAL_LIGHT_DIRECTION.1,
+            DIRECTIONAL_LIGHT_DIRECTION.2,
+        ),
+    );
+    let ambient = AmbientLight::new(&context, AMBIENT_LIGHT_INTENSITY, Srgba::WHITE);
+
+    // 回転角度（ラジアン）
+    let mut angle: f32 = 0.0;
 
     // メインループ
-    // ウィンドウが閉じられるとプログラムが終了します。
-    loop {
-        // Y軸を中心に少し回転させる
-        let rotation = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.01);
-        cube.prepend_to_local_rotation(&rotation);
+    window.render_loop(move |mut frame_input| {
+        // ビューポートの更新
+        camera.set_viewport(frame_input.viewport);
 
-        // フレームを非同期でレンダリング
-        window.render().await;
-    }
+        // マウス操作でカメラを更新
+        control.handle_events(&mut camera, &mut frame_input.events);
+
+        // フレームレートに依存しない回転
+        // elapsed_time はミリ秒単位なので秒に変換
+        #[allow(clippy::cast_possible_truncation)]
+        let delta_time = frame_input.elapsed_time as f32 / 1000.0;
+        angle += ROTATION_SPEED * delta_time;
+        cube.set_transformation(Mat4::from_angle_y(radians(angle)));
+
+        // フレームをレンダリング
+        frame_input
+            .screen()
+            .clear(ClearState::color_and_depth(
+                BACKGROUND_COLOR.0,
+                BACKGROUND_COLOR.1,
+                BACKGROUND_COLOR.2,
+                BACKGROUND_COLOR.3,
+                1.0,
+            ))
+            .render(&camera, &cube, &[&light, &ambient]);
+
+        FrameOutput::default()
+    });
 }
 ```
 
@@ -395,11 +485,11 @@ async fn main() {
 
 ### カメラ操作
 
-`kiss3d`のウィンドウでは、マウスによる直感的なカメラ操作が可能です。
+`OrbitControl`を有効にした`three-d`のウィンドウでは、マウスを使って直感的にカメラを操作できます。
 
-- **左ドラッグ**: 回転
-- **右ドラッグ**: 平行移動
-- **スクロール**: ズームイン／ズームアウト
+- **左ドラッグ**: カメラをターゲットの周りに回転させます。
+- **右ドラッグ**: カメラを平行移動させます。
+- **スクロール**: ターゲットに近づいたり遠ざかったりします（ズーム）。
 
 ## まとめ
 
@@ -407,7 +497,7 @@ async fn main() {
 
 > [!IMPORTANT]
 >
-> - **可視化ツールは任意に選択可能です**。本書では`plotters`と`kiss3d`を紹介しますが、Python、`gnuplot`、Excelなど、ご自身が習熟されているツールの使用を推奨します。
+> - **可視化ツールは任意に選択可能です**。本書では`plotters`と`three-d`を紹介しますが、Python、`gnuplot`、Excelなど、ご自身が習熟されているツールの使用を推奨します。
 > - **CSVファイルへの出力**は、ツール間のデータ連携において利便性が高いため、推奨される手法です。
 > - 本書の学習における中核は**数値計算アルゴリズムとそのRustによる実装**であり、可視化はあくまで結果を検証・分析するための一手段です。
 
