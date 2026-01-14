@@ -27,7 +27,7 @@
 
 ```toml:Cargo.toml
 [dependencies]
-ndarray = "0.15"
+ndarray = "0.17"
 ```
 
 バージョンは執筆時点のものです。最新版は[crates.io](https://crates.io/crates/ndarray)で確認できます。
