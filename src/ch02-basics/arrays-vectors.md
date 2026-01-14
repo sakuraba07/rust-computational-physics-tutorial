@@ -39,6 +39,7 @@ let velocity: [f64; 3] = [0.0; 3];
 
 // 要素へのアクセス
 println!("x-coordinate: {}", position[0]);
+println!("Initial velocity: {:?}", velocity);
 
 // forループによるイテレーション
 for component in &position {
@@ -136,7 +137,7 @@ let positions = vec![[0.0, 0.0], [1.0, 1.0]];
 println!("Initial positions: {:?}", positions);
 
 // あらかじめ容量を確保しておくと再割り当てを回避できる
-let mut results: Vec<f64> = Vec::with_capacity(1000);
+let results: Vec<f64> = Vec::with_capacity(1000);
 
 // push: 要素を追加
 time_series.push(0.0);
