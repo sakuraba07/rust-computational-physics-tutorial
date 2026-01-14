@@ -205,10 +205,25 @@ fn main() {
 > let nan = f64::NAN;
 > println!("{}", nan + 1.0);   // NaN
 > println!("{}", nan * 0.0);   // NaN
-> println!("{}", nan.max(0.0)); // NaN
+> println!("{}", nan.sin());   // NaN
 > ```
 >
 > 結果が期待と異なる場合や、シミュレーションが発散した場合は、`is_nan()` や `is_finite()` を用いて中間値をチェックすることが有効なデバッグ手法です。
+
+<details>
+<summary>補足: <code>max()</code> / <code>min()</code> とNaN</summary>
+
+`f64::max()` および `f64::min()` は、引数の一方がNaNの場合、**非NaNの値を返します**。これはIEEE 754-2008の仕様に準拠した動作であり、NaNは伝播しません。
+
+```rust
+let nan = f64::NAN;
+println!("{}", nan.max(0.0)); // 0（NaNではない！）
+println!("{}", nan.min(0.0)); // 0（NaNではない！）
+```
+
+NaNを伝播させたい場合は、`f64::maximum()` / `f64::minimum()`（nightly版で利用可能）を使用するか、明示的にNaNをチェックする必要があります。
+
+</details>
 
 > [!NOTE]
 > **オーバーフローとアンダーフロー**
