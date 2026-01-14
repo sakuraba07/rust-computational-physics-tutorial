@@ -266,7 +266,7 @@ fn main() {
 
 このような場合には、相対誤差を用いるのが有効です。
 
-```rust
+```rust,noplayground
 fn relative_eq(a: f64, b: f64, tolerance: f64) -> bool {
     // 注意: NaNが渡された場合、この関数はfalseを返す
     // （NaNとの比較はすべてfalseになるため）
