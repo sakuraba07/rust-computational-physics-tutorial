@@ -346,7 +346,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 このコードを実行すると、`plot-multi.png`というファイルに以下のようなグラフが描画されます。赤色の線が位置 `x`、青色の線が速度 `v` を表しており、凡例も表示されていることが確認できます。
 
-![複数系列のプロット結果](../images/plot-multi.avif)
+![複数系列のプロット結果](../images/ch01/plot-multi.avif)
 
 ## three-dによる3D可視化
 
