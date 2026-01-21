@@ -20,6 +20,11 @@ $$ x_n = 1/N sum_(k=0)^(N-1) X_k exp(i (2 pi k n) / N) quad (n = 0, 1, ..., N-1)
 
 定義式に基づいて、DFTを直接計算するコードを実装してみましょう。Rustの `num-complex` クレートを使用して複素数を扱います。
 
+```toml
+[dependencies]
+num-complex = "0.4"
+```
+
 ```rust
 use num_complex::Complex;
 use std::f64::consts::PI;

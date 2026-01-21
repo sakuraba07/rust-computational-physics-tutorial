@@ -35,7 +35,7 @@ $$
 
 ```toml
 [dependencies]
-rustfft = "6.2"
+rustfft = "6.4"
 num-complex = "0.4"
 ```
 

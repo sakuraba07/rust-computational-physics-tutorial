@@ -44,11 +44,12 @@ $$ h_("new") = h_("old") times S times ( epsilon / Delta )^(1/5) $$
 
 （※以下は概念的な使い方の例であり、実際のAPIはバージョンにより異なる場合があります）
 
-```rust
-// Cargo.toml
-// [dependencies]
-// ode_solvers = "0.3"
+```toml
+[dependencies]
+ode_solvers = "0.6"
+```
 
+```rust
 use ode_solvers::dopri5::*;
 use ode_solvers::*;
 

@@ -10,6 +10,15 @@ Rustで精密なベンチマークを取るための標準的なライブラリ�
 
 `Cargo.toml` に設定を追加し、`benches/my_benchmark.rs` を以下のように記述します。
 
+```toml
+[dev-dependencies]
+criterion = { version = "0.8", features = ["html_reports"] }
+
+[[bench]]
+name = "my_benchmark"
+harness = false
+```
+
 ```rust
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 

@@ -12,8 +12,8 @@ Rustの標準ライブラリには乱数生成器が含まれていないため�
 
 ```toml
 [dependencies]
-rand = "0.8"
-rand_distr = "0.4" # 特定の分布を使用する場合
+rand = "0.9"
+rand_distr = "0.5" # 特定の分布を使用する場合
 ```
 
 ## 基本的な使い方
@@ -72,7 +72,7 @@ use rand_chacha::ChaCha8Rng; // 高品質な生成器
 fn main() {
     let seed = [0u8; 32]; // 固定のシード
     let mut rng = ChaCha8Rng::from_seed(seed);
-    
+
     let x: f64 = rng.gen();
     println!("Always same value: {}", x);
 }
