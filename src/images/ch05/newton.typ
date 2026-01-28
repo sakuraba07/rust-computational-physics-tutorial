@@ -21,7 +21,7 @@
     // Curve
     let domain = range(-10, 60).map(x => x/10)
     line(..domain.map(x => (x * s, f(x) * s)), stroke: blue + 3pt, name: "f")
-    content((5.5 * s + 0.2 * s, f(5.5) * s), anchor: "south-west")[$f(x)$]
+    content((5.5 * s - 0.2 * s, f(5.5) * s), anchor: "east")[$f(x)$]
 
     // Newton Step
     let x0 = 4.5
@@ -47,6 +47,6 @@
     // Annotations
     content((x0 * s + 0.1 * s, y0 * s), anchor: "north-west", padding: 0.1)[$f(x_n)$]
 
-    content((3.5 * s, tangent_y(3.5) * s), anchor: "south-east", padding: 0.2)[Tangent line \ (slope $f'(x_n)$)]
+    content((2.5 * s, tangent_y(2.5) * s), anchor: "north-west", padding: 0.2)[Tangent line \ (slope $f'(x_n)$)]
 
 })
